@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  lastName  String?
+  password  String?
+  role      String?
+  phone     String?
+  facebookId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  companyId Int?
+  company   Company? @relation(fields: [companyId], references: [id])
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  address   String
+  zipCode   String
+  city      String
+  state     String?
+  country   String
+  phone     String?
+  billingEmail String
+  invoices  Invoice[]
+  planId    Int?
+  plan      PlanType? @relation(fields: [planId], references: [id])
+  ApiKey    ApiKey?
+  users     User[]
+}
+
+model Invoice {
+  id        Int      @id @default(autoincrement())
+  number    String   @unique
+  title     String
+  total     Float
+  totalVat  Float
+  vatRate   Float
+  dueDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  statusId  Int
+  companyId Int
+  company   Company  @relation(fields: [companyId], references: [id])
+  status    InvoiceStatus @relation(fields: [statusId], references: [id])
+  lines     InvoiceLine[]
+  address   InvoiceAddress[]
+  url       String?   @unique
+}
+
+model InvoiceStatus {
+  id        Int      @id @default(autoincrement())
+  status    String     @unique
+  invoices  Invoice[]
+}
+
+model PlanType {
+  id        Int      @id @default(autoincrement())
+  type      String   @unique
+  price     Float
+  companies Company[]
+}
+
+model InvoiceLine {
+  id        Int      @id @default(autoincrement())
+  title     String
+  quantity  Int
+  total     Float
+  totalVat  Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  invoiceId Int
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+}
+
+model InvoiceAddress {
+  id        Int      @id @default(autoincrement())
+  address   String
+  zipCode   String
+  city      String
+  country   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  invoiceId Int
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+}
+
+model ApiKey {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  companyId Int    @unique
+  company   Company  @relation(fields: [companyId], references: [id])
+}
+
+
