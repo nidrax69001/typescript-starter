@@ -42,7 +42,6 @@ export class CompanyRepositoryImpl implements CompanyRepository {
         billingEmail: args.email,
         zipCode: args.zip,
         phone: args.phone,
-        state: args.state || undefined,
       },
     });
 

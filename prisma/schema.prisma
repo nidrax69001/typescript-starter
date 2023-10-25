@@ -33,13 +33,14 @@ model Company {
   address   String
   zipCode   String
   city      String
-  state     String?
+  iban      String?
   country   String
   phone     String?
-  billingEmail String
-  invoices  Invoice[]
+  billingEmail String?
+  invoices  Invoice[] @relation("from")
   planId    Int?
   plan      PlanType? @relation(fields: [planId], references: [id])
+  invoicesTo Invoice[] @relation("to")
   ApiKey    ApiKey?
   users     User[]
 }
@@ -56,10 +57,11 @@ model Invoice {
   updatedAt DateTime @updatedAt
   statusId  Int
   companyId Int
-  company   Company  @relation(fields: [companyId], references: [id])
+  companyToId Int?
+  companyTo  Company?  @relation("to", fields: [companyToId], references: [id])
+  company   Company  @relation("from", fields: [companyId], references: [id])
   status    InvoiceStatus @relation(fields: [statusId], references: [id])
   lines     InvoiceLine[]
-  address   InvoiceAddress[]
   url       String?   @unique
 }
 
@@ -82,18 +84,6 @@ model InvoiceLine {
   quantity  Int
   total     Float
   totalVat  Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  invoiceId Int
-  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
-}
-
-model InvoiceAddress {
-  id        Int      @id @default(autoincrement())
-  address   String
-  zipCode   String
-  city      String
-  country   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   invoiceId Int

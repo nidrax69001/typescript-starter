@@ -29,16 +29,26 @@ export class ApiKeyRepositoryImpl implements ApiKeyRepository {
       },
     });
   }
+
   findAll(): ApiKey[] {
     throw new Error('Method not implemented.');
   }
+
   async findOne(args: GetApiKeyDto): Promise<ApiKey> {
     return await this.prismaService.apiKey.findUnique({
+      select: {
+        id: true,
+        key: true,
+        createdAt: true,
+        updatedAt: true,
+        companyId: true,
+      },
       where: {
-        id: +args.companyId,
+        companyId: +args.companyId,
       },
     });
   }
+
   async update(args: UpdateApiKeyDto): Promise<ApiKey> {
     return await this.prismaService.apiKey.update({
       data: {
@@ -49,6 +59,7 @@ export class ApiKeyRepositoryImpl implements ApiKeyRepository {
       },
     });
   }
+
   remove(id: number): void {
     throw new Error('Method not implemented.');
   }

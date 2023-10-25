@@ -6,6 +6,7 @@ import {
   GetApiKeyDto,
   UpdateApiKeyDto,
 } from './api-key';
+import { ApiKeyNotFound } from './api-key.error';
 
 @Injectable()
 export class ApiKeyService {
@@ -41,7 +42,12 @@ export class ApiKeyService {
   }
 
   public async getApiKey(args: GetApiKeyDto): Promise<ApiKey> {
-    return await this.apiKeyRepository.findOne({ companyId: args.companyId });
+    const data = await this.apiKeyRepository.findOne({
+      companyId: args.companyId,
+    });
+
+    if (!data) throw new ApiKeyNotFound({ companyId: args.companyId });
+    return data;
   }
 
   public getApiKeys(): void {

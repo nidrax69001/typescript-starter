@@ -1,20 +1,45 @@
-import { Body, Controller, Get, Post, Param, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Param,
+  Put,
+  BadRequestException,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ApiKeyService } from './api-key.service';
 import { CreateApiKeyServiceDto } from './api-key';
+import { ApiKeyNotFound } from './api-key.error';
 
 @Controller()
 export class ApiKeyController {
   constructor(private apiKeyService: ApiKeyService) {}
-  @Post()
+
+  @Post('api-keys')
   async createApiKey(@Body() args: CreateApiKeyServiceDto) {
-    return await this.apiKeyService.createApiKey(args);
+    try {
+      return await this.apiKeyService.createApiKey(args);
+    } catch (error) {
+      throw new BadRequestException({ errorCode: 'API_KEY_CREATE_ERROR' });
+    }
   }
 
-  @Get('company/:companyId/api-keys')
+  @Get('companies/:companyId/api-keys')
   async getApiKey(@Param('companyId') companyId: number) {
-    return await this.apiKeyService.getApiKey({
-      companyId,
-    });
+    try {
+      return await this.apiKeyService.getApiKey({
+        companyId,
+      });
+    } catch (error) {
+      if (error instanceof ApiKeyNotFound) {
+        throw new NotFoundException({
+          errorCode: 'API_KEY_NOT_FOUND',
+        });
+      }
+      throw error;
+    }
   }
 
   @Put('api-keys/:id')
